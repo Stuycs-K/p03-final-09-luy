@@ -12,26 +12,23 @@ A simple recreation of word bomb through networking in C. Servers acting as game
   
 ### Instructions:
 
-To setup the game room and 1 potential player: <br>
+*To setup the game room and 1 potential player:* <br>
 make setup <br>
 make server <br>
 make client <br>
-To join an active room (assuming server with room is present): <br>
+<br>
+*To join an active room (assuming server with room is present):* <br>
 make setup <br>
 make client <br>
 
-INTERACTIONS: <br>
+**INTERACTIONS:** <br>
 
-Use the follow commands to control the game from server: <br>
+*Use the follow commands to control the game from server:* <br>
 -status (will print current status of room, along with active clients that have connected successfully) <br>
 -start (attempt to start one round of word bomb) <br>
 -end (force ends current round, disconnecting all clients and resets game state) <br>
 
-Player clients should wait for their turn and play accoringly <br>
-
-To join an active room (assuming server with room is present): <br>
-make setup <br>
-make client <br>
+*__Player clients should wait for their turn and play accordingly!__* <br>
 
 ### Resources/ References:
 
