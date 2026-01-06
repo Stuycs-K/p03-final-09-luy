@@ -1,13 +1,14 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/QfAIDTGi)
-# PROJECT NAME HERE (CHANGE THIS!!!!!)
+# MEGASYMBOLDETHWORDS
  
-### GROUP NAME HERE (CHANGE THIS!!!!!)
+### wordd???
 
-Group Members Here (CHANGE THIS!!!!!)
+Yu Lu
        
 ### Project Description:
 
-Explain what is this project. (CHANGE THIS!!!!!)
+A simple recreation of word bomb through networking in C. Servers acting as gamemasters that track rounds, validate words, and points/health of each client as they take turns in guessing the right words. The last client alive wins.
+
   
 ### Instructions:
 
@@ -16,4 +17,5 @@ How does the user interact with this program? (CHANGE THIS!!!!!)
 
 ### Resources/ References:
 
-list here(CHANGE THIS!!!!!)
+[Mr. K's Website - Systems Programming](https://konstantinnovation.github.io/systems.html)
+[Beej's guide to network programming](https://beej.us/guide/bgnet/html/)
