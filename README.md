@@ -24,9 +24,9 @@ make client <br>
 **INTERACTIONS:** <br>
 
 *Use the follow commands to control the game from server:* <br>
--status (will print current status of room, along with active clients that have connected successfully) <br>
--start (attempt to start one round of word bomb) <br>
--end (force ends current round, disconnecting all clients and resets game state) <br>
+__-status__ (will print current status of room, along with active clients that have connected successfully) <br>
+__-start__ (attempt to start one round of word bomb) <br>
+__-end__ (force ends current round, disconnecting all clients and resets game state) <br>
 
 *__Player clients should wait for their turn and play accordingly!__* <br>
 
