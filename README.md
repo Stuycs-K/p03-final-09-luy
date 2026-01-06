@@ -20,6 +20,7 @@ A simple recreation of word bomb through networking in C. Servers acting as game
 *To join an active room (assuming server with room is present):* <br>
 >> make setup <br>
 >> make client <br>
+<br>
 
 **INTERACTIONS:** <br>
 
