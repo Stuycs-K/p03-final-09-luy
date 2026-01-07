@@ -21,10 +21,12 @@ int server_setup() {
   int listen_fd = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
   err(listen_fd, "socket error");
 
-  //this code should get around the address in use error
   int yes = 1;
-  int sockOpt = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
-  err(sockOpt, "sockopt error");
+  if ( setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1 ) {
+      printf("sockopt  error\n");
+      printf("%s\n",strerror(errno));
+      exit(-1);
+  }
 
   //bind the socket to address and port
   int binder = bind(listen_fd, results->ai_addr, results->ai_addrlen);
@@ -35,8 +37,8 @@ int server_setup() {
   printf("bind complete\n");
   //set socket to listen state
 
-  listen(listen_fd, 1);
-  printf("server listening for connections.\n");
+  listen(listen_fd, 2);
+  printf("server listening for connections on PORT: %s\n", PORT);
 
   //free the structs used by getaddrinfo
   freeaddrinfo(results);
