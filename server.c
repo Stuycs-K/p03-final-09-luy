@@ -33,10 +33,18 @@ void subserver_logic(int client_socket){
 }
 
 int main(int argc, char *argv[] ) {
+  fd_set read_fds;
   int listen_socket = server_setup();
+  int client_socket = 0;
 
+  // int client_socket = server_tcp_handshake(listen_socket);
+  FD_SET(listen_socket, &read_fds);
+  int i = select(listen_socket+1, &read_fds, NULL, NULL, NULL);
 
-  int client_socket = server_tcp_handshake(listen_socket);
+  if (FD_ISSET(listen_socket, &read_fds)) {
+  client_socket = server_tcp_handshake(listen_socket);
+  }
+
   while(1){
     subserver_logic(client_socket);
   }
