@@ -50,14 +50,20 @@ int server_setup() {
  *return the socket descriptor for the new socket connected to the client
  *blocks until connection is made.
  */
-int server_tcp_handshake(int listen_socket){
+void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax){
     struct sockaddr_storage client_addr;
     socklen_t addr_len = sizeof(client_addr);
     int client_socket = accept(listen_socket, (struct sockaddr*)&client_addr, &addr_len);
     if (client_socket == -1) {
         err(client_socket, "accept error");
+    }else{
+      FD_SET(client_socket, master);
+      if(client_socket > *fdmax){
+        *fdmax = client_socket;
+      }
+      printf("new connection\n");
     }
-    return client_socket;
+
 }
 
 

@@ -34,19 +34,37 @@ void subserver_logic(int client_socket){
 
 int main(int argc, char *argv[] ) {
   fd_set read_fds;
+  fd_set master;
+  int fd_max;
+  FD_ZERO(&master);
+  FD_ZERO(&read_fds);
+
   int listen_socket = server_setup();
-  int client_socket = 0;
+  //  int client_socket = 0;
   // int client_socket = server_tcp_handshake(listen_socket);
-  FD_SET(listen_socket, &read_fds);
-  int i = select(listen_socket+1, &read_fds, NULL, NULL, NULL);
+  FD_SET(listen_socket, &master);
+  fd_max = listen_socket;
 
   while(1){
-    if (FD_ISSET(listen_socket, &read_fds)) {
-    client_socket = server_tcp_handshake(listen_socket);
+    read_fds = master;
+    int i = select(listen_socket+1, &read_fds, NULL, NULL, NULL);
+    if(i == -1){
+      perror("select");
     }
-    subserver_logic(client_socket);
+    for(int i =0; i<=fd_max; i++){
+      if (FD_ISSET(listen_socket, &read_fds)) {
+        if(i == listen_socket){
+          printf("Found valid client\n");
+          server_tcp_handshake(i, &master, &fd_max);
+        }else{
+          printf("Existing client\n");
+        }
+      }
+    }
+
   }
-  close(client_socket);
+  close(listen_socket);
   printf("Socket closed\n");
+  return 0;
 
 }
