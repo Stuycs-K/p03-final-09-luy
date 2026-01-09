@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <ctype.h>
-
+#include <sys/select.h>
 
 #ifndef NETWORKING_H
 #define NETWORKING_H

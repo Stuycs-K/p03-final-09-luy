@@ -1,4 +1,6 @@
+#define _DEFAULT_SOURCE
 #include "networking.h"
+#include <netdb.h>
 
 /*Create and bind a socket.
 * Place the socket in a listening state.

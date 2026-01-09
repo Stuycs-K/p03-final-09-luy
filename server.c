@@ -14,28 +14,30 @@ void rotX(char *s, int x){
   }
 }
 
-void subserver_logic(int client_socket){
-  char ret[BUFFER_SIZE];
-  memset(ret, 0, sizeof(ret));
-  char cpy[BUFFER_SIZE];
-  memset(cpy, 0, sizeof(cpy));
+int subserver_logic(int client_socket){
+  char buffer[BUFFER_SIZE];
+  memset(buffer, 0, sizeof(buffer));
 
-
-  ssize_t n = recv(client_socket, ret, sizeof(ret) - 1, 0);
-  if(n < 1){
-    printf("EXITING!\n");
-    exit(0);
+  ssize_t n = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+  if(n <= 0){
+    return 0; 
   }
-  strcpy(cpy, ret);
-  rotX(ret, 13);
+  
+  char cpy[BUFFER_SIZE];
+  strcpy(cpy, buffer);
+  
+  rotX(buffer, 13);
+  printf("Socket %d: '%s' becomes '%s'\n", client_socket, cpy, buffer);
 
-  printf("'%s' becomes '%s'\n", cpy, ret);
+  send(client_socket, buffer, strlen(buffer), 0);
+  return 1;
 }
 
 int main(int argc, char *argv[] ) {
   fd_set read_fds;
   fd_set master;
   int fd_max;
+
   FD_ZERO(&master);
   FD_ZERO(&read_fds);
 
@@ -47,24 +49,28 @@ int main(int argc, char *argv[] ) {
 
   while(1){
     read_fds = master;
-    int i = select(listen_socket+1, &read_fds, NULL, NULL, NULL);
+    int i = select(fd_max+1, &read_fds, NULL, NULL, NULL);
     if(i == -1){
       perror("select");
+      exit(1);
     }
     for(int i =0; i<=fd_max; i++){
-      if (FD_ISSET(listen_socket, &read_fds)) {
+      if (FD_ISSET(i, &read_fds)) {
         if(i == listen_socket){
           printf("Found valid client\n");
-          server_tcp_handshake(i, &master, &fd_max);
+          server_tcp_handshake(listen_socket, &master, &fd_max);
         }else{
-          printf("Existing client\n");
+          int status = subserver_logic(i);
+          if (status == 0) {
+            printf("Client on socket %d disconnected\n", i);
+            close(i);
+            FD_CLR(i, &master);
+          }
         }
       }
     }
 
   }
-  close(listen_socket);
-  printf("Socket closed\n");
   return 0;
 
 }
