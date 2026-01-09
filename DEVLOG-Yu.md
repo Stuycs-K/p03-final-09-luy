@@ -9,5 +9,6 @@ Moved yesterday's PROPOSAL work into repo today, also make sure that everything 
 ### 2026-01-7 - Multisocket (BROKEN)
 attempting multisocket on new branch
 
-### 2026-01-8 - Multisocket
+### 2026-01-8 - Multisocket + game skeleton
 Finished fixing the multisocket, now rewriting lab to fit game logic
+Player structs into server, no change in displays yet

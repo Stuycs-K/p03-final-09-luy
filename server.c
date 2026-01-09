@@ -13,14 +13,29 @@ void rotX(char *s, int x){
     }
   }
 }
+player* find_player(int socket, game_state *game) {
+  for (int i = 0; i < MAX_CLIENTS; i++) {
+    if (game->players[i].in_game && game->players[i].fd == socket) {
+      return &game->players[i];
+    }
+  }
+  return NULL;
+}
 
-int subserver_logic(int client_socket){
+
+int subserver_logic(int client_socket, game_state *game){
+  player *p = find_player(client_socket, game);
+  if (p == NULL) return 0;
+
   char buffer[BUFFER_SIZE];
   memset(buffer, 0, sizeof(buffer));
 
   ssize_t n = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
   if(n <= 0){
-    return 0; 
+    printf("%s disconnected.\n", p->name);
+    p->in_game = 0;
+    game->num_players--;
+    return 0;
   }
   
   char cpy[BUFFER_SIZE];
@@ -37,7 +52,9 @@ int main(int argc, char *argv[] ) {
   fd_set read_fds;
   fd_set master;
   int fd_max;
+  game_state game;
 
+  memset(&game, 0, sizeof(game_state));
   FD_ZERO(&master);
   FD_ZERO(&read_fds);
 
@@ -58,9 +75,9 @@ int main(int argc, char *argv[] ) {
       if (FD_ISSET(i, &read_fds)) {
         if(i == listen_socket){
           printf("Found valid client\n");
-          server_tcp_handshake(listen_socket, &master, &fd_max);
+          server_tcp_handshake(listen_socket, &master, &fd_max, &game);
         }else{
-          int status = subserver_logic(i);
+          int status = subserver_logic(i, &game);
           if (status == 0) {
             printf("Client on socket %d disconnected\n", i);
             close(i);

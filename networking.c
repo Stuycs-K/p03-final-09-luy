@@ -52,21 +52,42 @@ int server_setup() {
  *return the socket descriptor for the new socket connected to the client
  *blocks until connection is made.
  */
-void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax){
-    struct sockaddr_storage client_addr;
-    socklen_t addr_len = sizeof(client_addr);
-    int client_socket = accept(listen_socket, (struct sockaddr*)&client_addr, &addr_len);
-    if (client_socket == -1) {
-        err(client_socket, "accept error");
-    }else{
-      FD_SET(client_socket, master);
-      if(client_socket > *fdmax){
-        *fdmax = client_socket;
-      }
-      printf("new connection\n");
-    }
+void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_state *game){
+  struct sockaddr_storage client_addr;
+  socklen_t addr_len = sizeof(client_addr);
+  int client_socket = accept(listen_socket, (struct sockaddr*)&client_addr, &addr_len);
+  if (client_socket == -1) {
+    err(client_socket, "accept error");
+  }else{
+    FD_SET(client_socket, master);
+    if(client_socket > *fdmax){
+      *fdmax = client_socket;}
+  }
 
+  int i;
+  int slot_found = 0;
+  for(i = 0; i < MAX_CLIENTS; i++) {
+    if (game->players[i].in_game == 0) {
+      game->players[i].fd = client_socket;
+      game->players[i].lives = 3;
+      game->players[i].in_game = 1;
+      sprintf(game->players[i].name, "Player %d", i); // Assign simple name
+      
+      game->num_players++;
+      printf("New connection: %s added on socket %d\n", game->players[i].name, client_socket);
+      
+      slot_found = 1;
+      break;
+    }
+  }
+
+  if (!slot_found) {
+    printf("Server full! Dropping connection.\n");
+    close(client_socket);
+    FD_CLR(client_socket, master);
+  }
 }
+
 
 
 /*Connect to the server
