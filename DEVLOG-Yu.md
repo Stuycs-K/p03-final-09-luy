@@ -12,3 +12,7 @@ attempting multisocket on new branch
 ### 2026-01-8 - Multisocket + game skeleton
 Finished fixing the multisocket, now rewriting lab to fit game logic
 Player structs into server, no change in displays yet
+
+### 2026-01-8 - Working on reading linux word list
+Read linux word list in another c prg
+then working on constructing more game logic and revise client.c

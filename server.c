@@ -37,16 +37,18 @@ int subserver_logic(int client_socket, game_state *game){
     game->num_players--;
     return 0;
   }
-  
+
   char cpy[BUFFER_SIZE];
   strcpy(cpy, buffer);
-  
+
   rotX(buffer, 13);
   printf("Socket %d: '%s' becomes '%s'\n", client_socket, cpy, buffer);
 
   send(client_socket, buffer, strlen(buffer), 0);
   return 1;
 }
+
+
 
 int main(int argc, char *argv[] ) {
   fd_set read_fds;
