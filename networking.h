@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <ctype.h>
-
+#include <sys/select.h>
 
 #ifndef NETWORKING_H
 #define NETWORKING_H
@@ -20,5 +20,5 @@
 void err(int i, char*message);
 int server_setup();
 int client_tcp_handshake(char*server_address);
-int server_tcp_handshake(int listen_socket);
+void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax);
 #endif
