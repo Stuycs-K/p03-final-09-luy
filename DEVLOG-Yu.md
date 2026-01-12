@@ -16,3 +16,7 @@ Player structs into server, no change in displays yet
 ### 2026-01-8 - Working on reading linux word list
 Read linux word list in another c prg
 then working on constructing more game logic and revise client.c
+
+### 2026-01-11 - Client, .gitattributes, 
+Implemented select() to client; it now will not be blocked waiting for a input from user and can recieve from server
+gitattributes config to LF bc working w/ windows at home
