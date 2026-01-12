@@ -27,13 +27,11 @@ int main(int argc, char *argv[] ) {
   }
   int server_socket = client_tcp_handshake(IP);
   printf("client connected.\n");
-  while(1){
-    clientLogic(server_socket);
-  }
+
   fd_set read_fds;
   while(1){
     FD_ZERO(&read_fds);
-    FD_SET(fileno(stdin), &read_fds); // read both from user input and server
+    FD_SET(fileno(stdin), &read_fds); // select from user input and server
     FD_SET(server_socket, &read_fds);
 
     if (select(server_socket + 1, &read_fds, NULL, NULL, NULL) == -1) { // server is proly max, but if it breaks rip
@@ -41,20 +39,29 @@ int main(int argc, char *argv[] ) {
       exit(1);
     }
 
-    // server message
+    // server messages
     if(FD_ISSET(server_socket, &read_fds)){
-      printf("Server sent msg!\n");
+      char buff[BUFFER_SIZE];
+      memset(buff, 0, sizeof(buff));
+
+      int bytes = recv(server_socket, buff, sizeof(buff) - 1, 0);
+
+      
+      if(bytes <= 0){
+        printf("You died!\n"); // should probably do like a last message to print stats or something before exit 0ing
+        exit(0);
+      }
+      printf("%s\n", buff);
     }
 
-    // user input
+    // user inputs
     if(FD_ISSET(filno(stdin), &read_fds)){
       char buff[BUFFER_SIZE];
       memset(buff, 0, sizeof(buff));
 
       if(fgets(buff, sizeof(buff), stdin) != NULL){
-        // send stuff to serverr
         buff[strcspn(buff, '\n')] = 0;
-        send(&server_socket, buff, sizeof(buff), 0);
+        send(server_socket, buff, strlen(buff), 0);
       }
 
     }
