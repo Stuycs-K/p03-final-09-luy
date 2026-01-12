@@ -49,6 +49,31 @@ void load_dictionary(game_state *game) {
   fclose(fd);
 }
 
+/*
+  If word existing in the **dictionary stored in *game, return 1 else return 0
+*/
+
+int is_word_in_dict(char *word, game_state *game) {
+  for (int i = 0; i < game->dict_count; i++) {
+    if (strcasecmp(word, game->dictionary[i]) == 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+/*
+  If word exists in **used_words stored in *game return 1 else return 0
+*/
+int is_word_used(char *word, game_state *game) {
+  for (int i = 0; i < game->used_count; i++) {
+    if (strcasecmp(word, game->used_words[i]) == 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 
 /*
   Subserver logic for SERVER
