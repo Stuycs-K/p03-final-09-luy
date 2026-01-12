@@ -17,6 +17,7 @@ Player structs into server, no change in displays yet
 Read linux word list in another c prg
 then working on constructing more game logic and revise client.c
 
-### 2026-01-11 - Client, .gitattributes, 
+### 2026-01-11 - Client, .gitattributes, Game
 Implemented select() to client; it now will not be blocked waiting for a input from user and can recieve from server
 gitattributes config to LF bc working w/ windows at home
+Game is in its mvp stages, you have to manually set the starting letter and u can only guess 4 letter words from a preset dictionary
