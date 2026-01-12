@@ -1,6 +1,9 @@
 #include "networking.h"
 
-
+/*
+  Returns address of player struct associated with socket within *game
+  If not found, returns NULL.
+*/
 player* find_player(int socket, game_state *game) {
   for (int i = 0; i < MAX_CLIENTS; i++) {
     if (game->players[i].in_game && game->players[i].fd == socket) {
@@ -10,8 +13,20 @@ player* find_player(int socket, game_state *game) {
   return NULL;
 }
 
-
-int subserver_logic(int client_socket, game_state *game){
+/*
+  Sends *msg to all currently in_game players in *game
+*/
+void broadcast(game_state *game, char *msg){
+  for(int i =0; i<MAX_CLIENTS; i++){
+    if(game->players[i].in_game){
+      send(game->players[i].fd, msg, strlen(msg), 0);
+    }
+  }
+}
+/*
+  Subserver logic for SERVER
+*/
+int subserver_logic(int client_socket, game_state *game, fd_set *master){
   player *p = find_player(client_socket, game);
   if (p == NULL) return 0;
 
@@ -19,20 +34,27 @@ int subserver_logic(int client_socket, game_state *game){
   memset(buffer, 0, sizeof(buffer));
 
   ssize_t n = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+
   if(n <= 0){
     printf("%s disconnected.\n", p->name);
+    char leaveMsg[BUFFER_SIZE];
+    sprintf(leaveMsg, "-- %s has left the game! --", p->name);
+    broadcast(game, leaveMsg);
+
+    close(client_socket);
+    FD_CLR(client_socket, master);
     p->in_game = 0;
     game->num_players--;
     return 0;
   }
 
-  char cpy[BUFFER_SIZE];
-  strcpy(cpy, buffer);
+  buffer[strcspn(buffer, "\n")] = 0;
 
-  rotX(buffer, 13);
-  printf("Socket %d: '%s' becomes '%s'\n", client_socket, cpy, buffer);
+  char game_msg[BUFFER_SIZE];
+  sprintf(game_msg, "[GAME]: %s says %s", p->name, buffer);
 
-  send(client_socket, buffer, strlen(buffer), 0);
+  printf("Log: %s\n", game_msg);
+  broadcast(game, game_msg);
   return 1;
 }
 
@@ -67,7 +89,7 @@ int main(int argc, char *argv[] ) {
           printf("Found valid client\n");
           server_tcp_handshake(listen_socket, &master, &fd_max, &game);
         }else{
-          int status = subserver_logic(i, &game);
+          int status = subserver_logic(i, &game, &master);
           if (status == 0) {
             printf("Client on socket %d disconnected\n", i);
             close(i);
