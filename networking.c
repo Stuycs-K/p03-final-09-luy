@@ -41,7 +41,7 @@ int server_setup() {
 
   //now listening
   listen(listen_fd, 2);
-  printf("[SERVER SETUP]: server listening for connections on PORT: %s\n", PORT);
+  printf("[SERVER SETUP]: server will be listening for connections on PORT: %s\n", PORT);
 
 
   freeaddrinfo(results);
@@ -58,9 +58,9 @@ void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_st
   // accept connection with new private socket
   int client_socket = accept(listen_socket, (struct sockaddr*)&client_addr, &addr_len);
 
-  
+
   if (client_socket == -1) {
-    err(client_socket, "[SERVER HANDSHAKE]: Could not accept new client!");
+    err(client_socket, "[SERVER]: Could not accept new client!");
   }else{ // update fd max to this new socket
     FD_SET(client_socket, master);
     if(client_socket > *fdmax){
@@ -80,19 +80,19 @@ void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_st
       game->num_players++;
       sprintf(game->players[i].name, "Player %d", i); // Assign simple name
 
-      printf("[SERVER HANDSHAKE]: New connection! %s added on socket %d\n", game->players[i].name, client_socket);
-      
+      printf("[SERVER]: New connection ok! %s added on socket %d\n", game->players[i].name, client_socket);
+
       slot_found = 1;
 
       char welcome[BUFFER_SIZE];
-      snprintf(welcome, sizeof(welcome), 
-      "Welcome to MEGASYMBOLDETHWORDS, %s!\n\nCurrent Prompt: %s\nCurrent Turn: %s\n", 
-      game->players[i].name, 
-      game->current_prompt, 
+      snprintf(welcome, sizeof(welcome),
+      "Welcome to MEGASYMBOLDETHWORDS, %s!\n\nCurrent Prompt: %s\nCurrent Turn: %s\n",
+      game->players[i].name,
+      game->current_prompt,
       game->players[game->turn_index].name);
 
       if(strcasecmp(game->players[i].name, game->players[game->turn_index].name) == 0){
-        strcat(welcome, "IT'S YOUR TURN!!\n");
+        strcat(welcome, "\n\nIT'S YOUR TURN!!\n");
       }
 
       send(client_socket, welcome, strlen(welcome), 0);
@@ -139,7 +139,7 @@ int client_tcp_handshake(char * server_address) {
   }
 
   if (server_fd == -1) {
-    fprintf(stderr, "failed to connect to %s\n. Is server present?\n", server_address);
+    fprintf(stderr, "[CLIENT]: failed to connect to %s\n. Is server present?\n", server_address);
     freeaddrinfo(results);
     exit(1);
   }
