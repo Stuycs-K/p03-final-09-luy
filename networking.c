@@ -7,13 +7,13 @@
 * returns the socket descriptor
 */
 int server_setup() {
-  //setup structs for getaddrinfo
   int stat;
   struct addrinfo hints, *results; // use stack-allocated hints
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_INET;
   hints.ai_socktype = SOCK_STREAM; //TCP socket
   hints.ai_flags = AI_PASSIVE;
+  // obtains server information
   if ((stat = getaddrinfo(NULL, PORT, &hints, &results)) != 0) {
     err(stat, "[SERVER SETUP]: addrinfo error!");
     exit(1);
@@ -58,6 +58,7 @@ void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_st
   // accept connection with new private socket
   int client_socket = accept(listen_socket, (struct sockaddr*)&client_addr, &addr_len);
 
+  
   if (client_socket == -1) {
     err(client_socket, "[SERVER HANDSHAKE]: Could not accept new client!");
   }else{ // update fd max to this new socket
@@ -67,8 +68,9 @@ void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_st
   }
 
   int i;
-  int slot_found = 0; // flag to check if we found a seat
-  
+  int slot_found = 0;
+
+  //let this socket into game?
   for(i = 0; i < MAX_CLIENTS; i++) {
     if (game->players[i].in_game == 0) {
       // save socket id, setup player stats, and update global stats
@@ -103,7 +105,9 @@ int client_tcp_handshake(char * server_address) {
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = 0;
+
   int stat;
+  // obtains client information
   if ((stat = getaddrinfo(server_address, PORT, &hints, &results)) != 0) {
     fprintf(stderr, "client getaddrinfo failed: %s\n", gai_strerror(stat));
     exit(1);
