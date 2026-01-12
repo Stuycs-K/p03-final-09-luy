@@ -24,6 +24,33 @@ void broadcast(game_state *game, char *msg){
   }
 }
 /*
+  Load words.txt and adds to current *game
+*/
+void load_dictionary(game_state *game) {
+  FILE *fd = fopen("words.txt", "r");
+  if (!fd) {
+    perror("Could not open words.txt");
+    exit(1);
+  }
+
+  game->dictionary = malloc(sizeof(char*) * DICT_SIZE);
+  game->dict_count = 0;
+
+  char buffer[MAX_WORD_LEN];
+  while (fgets(buffer, sizeof(buffer), fd) && game->dict_count < DICT_SIZE) {
+    buffer[strcspn(buffer, "\n")] = 0;
+    // allocate exact memory for this specific word and then strcpy it
+    game->dictionary[game->dict_count] = malloc(strlen(buffer) + 1);
+    strcpy(game->dictionary[game->dict_count], buffer);
+    game->dict_count++;
+  }
+  
+  printf("[SERVER]: Loaded %d words into dictionary.\n", game->dict_count);
+  fclose(fd);
+}
+
+
+/*
   Subserver logic for SERVER
 */
 int subserver_logic(int client_socket, game_state *game, fd_set *master){

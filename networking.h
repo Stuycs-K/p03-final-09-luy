@@ -18,17 +18,28 @@
 #define PORT "7142"
 #define BUFFER_SIZE 8192
 #define MAX_CLIENTS 10
+#define MAX_WORD_LEN 50
+#define DICT_SIZE 3500
+#define MAX_USED_WORDS 500
 
 typedef struct {
     int fd;// The socket  (ID)
     int lives; // 3 lives
     int in_game; // Is this slot currently taken?
+    int turn_index; // just set order
+    
     char name[20];
 } player;
 
 typedef struct {
     player players[MAX_CLIENTS];
     int num_players;
+
+    char current_prompt[5]; // current starting letters
+    int dict_count;
+    char **dictionary; // stores words.txt
+    char used_words[MAX_USED_WORDS][MAX_WORD_LEN];
+    int used_count;
 } game_state;
 
 void err(int i, char*message);
