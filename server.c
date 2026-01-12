@@ -14,7 +14,7 @@ player* find_player(int socket, game_state *game) {
 }
 
 /*
-  Sends *msg to all currently in_game players in *game
+  Sends *msg to all connect and playing clients in *game
 */
 void broadcast(game_state *game, char *msg){
   for(int i =0; i<MAX_CLIENTS; i++){
