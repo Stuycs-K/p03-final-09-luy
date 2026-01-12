@@ -51,7 +51,7 @@ int main(int argc, char *argv[] ) {
         printf("You died!\n"); // should probably do like a last message to print stats or something before exit 0ing
         exit(0);
       }
-      printf("%s\n", buff);
+      printf("\n%s\n", buff);
     }
 
     // user inputs

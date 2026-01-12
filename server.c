@@ -51,7 +51,7 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
   buffer[strcspn(buffer, "\n")] = 0;
 
   char game_msg[BUFFER_SIZE];
-  sprintf(game_msg, "[GAME]: %s says %s", p->name, buffer);
+  snprintf(game_msg, sizeof(game_msg), "[GAME]: %s says %s", p->name, buffer);
 
   printf("Log: %s\n", game_msg);
   broadcast(game, game_msg);
