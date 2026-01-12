@@ -1,18 +1,6 @@
 #include "networking.h"
 
-void rotX(char *s, int x){
-  int t = x % 26;
-  if(t < 0){
-    t += 26;
-  }
-  for(int i= 0; s[i] != '\0'; i++){
-    if(islower(s[i])){
-      s[i] = ((s[i] - 'a' + t) % 26) + 'a';
-    }else if (isupper(s[i])){
-      s[i] = ((s[i] - 'A' + t)  % 26) + 'A';
-    }
-  }
-}
+
 player* find_player(int socket, game_state *game) {
   for (int i = 0; i < MAX_CLIENTS; i++) {
     if (game->players[i].in_game && game->players[i].fd == socket) {
