@@ -16,7 +16,7 @@
 #ifndef NETWORKING_H
 #define NETWORKING_H
 #define PORT "7142"
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 8192
 #define MAX_CLIENTS 10
 
 typedef struct {

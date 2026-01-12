@@ -55,12 +55,12 @@ int main(int argc, char *argv[] ) {
     }
 
     // user inputs
-    if(FD_ISSET(filno(stdin), &read_fds)){
+    if(FD_ISSET(fileno(stdin), &read_fds)){
       char buff[BUFFER_SIZE];
       memset(buff, 0, sizeof(buff));
 
       if(fgets(buff, sizeof(buff), stdin) != NULL){
-        buff[strcspn(buff, '\n')] = 0;
+        buff[strcspn(buff, "\n")] = 0;
         send(server_socket, buff, strlen(buff), 0);
       }
 
