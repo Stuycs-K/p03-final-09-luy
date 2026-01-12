@@ -15,7 +15,7 @@
 
 #ifndef NETWORKING_H
 #define NETWORKING_H
-#define PORT "19230"
+#define PORT "7142"
 #define BUFFER_SIZE 1024
 #define MAX_CLIENTS 10
 

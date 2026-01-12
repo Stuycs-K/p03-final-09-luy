@@ -15,36 +15,36 @@ int server_setup() {
   hints.ai_socktype = SOCK_STREAM; //TCP socket
   hints.ai_flags = AI_PASSIVE;
   if ((stat = getaddrinfo(NULL, PORT, &hints, &results)) != 0) {
-    err(stat, "addrinfo error");
+    err(stat, "[SERVER SETUP]: addrinfo error!");
     exit(1);
   }
 
   //create the socket
   int listen_fd = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
-  err(listen_fd, "socket error");
+  err(listen_fd, "[SERVER SETUP]: socket error");
 
+  // restart target port 7142 just in case
   int yes = 1;
   if ( setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1 ) {
-      printf("sockopt  error\n");
+      printf("[SERVER SETUP]: sockopt error. could not restart port!\n");
       printf("%s\n",strerror(errno));
       exit(-1);
   }
 
-  //bind the socket to address and port
+  //bound to port 7142 btw
   int binder = bind(listen_fd, results->ai_addr, results->ai_addrlen);
   if (binder == -1) {
-    err(binder, "bind error");
+    err(binder, "[SERVER SETUP]: bind error");
     exit(1);
   }
-  printf("bind complete\n");
-  //set socket to listen state
+  printf("[SERVER SETUP]: bind complete\n");
 
+  //now listening
   listen(listen_fd, 2);
-  printf("server listening for connections on PORT: %s\n", PORT);
+  printf("[SERVER SETUP]: server listening for connections on PORT: %s\n", PORT);
 
-  //free the structs used by getaddrinfo
+
   freeaddrinfo(results);
-
   return listen_fd;
 }
 
@@ -55,26 +55,30 @@ int server_setup() {
 void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_state *game){
   struct sockaddr_storage client_addr;
   socklen_t addr_len = sizeof(client_addr);
+  // accept connection with new private socket
   int client_socket = accept(listen_socket, (struct sockaddr*)&client_addr, &addr_len);
+
   if (client_socket == -1) {
-    err(client_socket, "accept error");
-  }else{
+    err(client_socket, "[SERVER HANDSHAKE]: Could not accept new client!");
+  }else{ // update fd max to this new socket
     FD_SET(client_socket, master);
     if(client_socket > *fdmax){
       *fdmax = client_socket;}
   }
 
   int i;
-  int slot_found = 0;
+  int slot_found = 0; // flag to check if we found a seat
+  
   for(i = 0; i < MAX_CLIENTS; i++) {
     if (game->players[i].in_game == 0) {
+      // save socket id, setup player stats, and update global stats
       game->players[i].fd = client_socket;
       game->players[i].lives = 3;
       game->players[i].in_game = 1;
-      sprintf(game->players[i].name, "Player %d", i); // Assign simple name
-      
       game->num_players++;
-      printf("New connection: %s added on socket %d\n", game->players[i].name, client_socket);
+      sprintf(game->players[i].name, "Player %d", i); // Assign simple name
+
+      printf("[SERVER HANDSHAKE]: New connection! %s added on socket %d\n", game->players[i].name, client_socket);
       
       slot_found = 1;
       break;
