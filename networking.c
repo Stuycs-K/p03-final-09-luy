@@ -83,6 +83,19 @@ void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_st
       printf("[SERVER HANDSHAKE]: New connection! %s added on socket %d\n", game->players[i].name, client_socket);
       
       slot_found = 1;
+
+      char welcome[BUFFER_SIZE];
+      snprintf(welcome, sizeof(welcome), 
+      "Welcome to MEGASYMBOLDETHWORDS, %s!\n\nCurrent Prompt: %s\nCurrent Turn: %s\n", 
+      game->players[i].name, 
+      game->current_prompt, 
+      game->players[game->turn_index].name);
+
+      if(strcasecmp(game->players[i].name, game->players[game->turn_index].name) == 0){
+        strcat(welcome, "IT'S YOUR TURN!!\n");
+      }
+
+      send(client_socket, welcome, strlen(welcome), 0);
       break;
     }
   }

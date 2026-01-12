@@ -26,7 +26,6 @@ typedef struct {
     int fd;// The socket  (ID)
     int lives; // 3 lives
     int in_game; // Is this slot currently taken?
-    int turn_index; // just set order
     
     char name[20];
 } player;
@@ -34,7 +33,7 @@ typedef struct {
 typedef struct {
     player players[MAX_CLIENTS];
     int num_players;
-
+    int turn_index; // just set order
     char current_prompt[5]; // current starting letters
     int dict_count;
     char **dictionary; // stores words.txt

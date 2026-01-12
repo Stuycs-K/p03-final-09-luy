@@ -93,20 +93,62 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
     sprintf(leaveMsg, "-- %s has left the game! --", p->name);
     broadcast(game, leaveMsg);
 
-    close(client_socket);
-    FD_CLR(client_socket, master);
     p->in_game = 0;
     game->num_players--;
     return 0;
   }
 
-  buffer[strcspn(buffer, "\n")] = 0;
+  // GAME LOGIC BELOW
 
-  char game_msg[BUFFER_SIZE];
-  snprintf(game_msg, sizeof(game_msg), "[GAME]: %s says %s", p->name, buffer);
+  // check if this is the right player going
+  if (p != &game->players[game->turn_index]) {
+    char *msg = "[GAME]: It is not your turn!\n";
+    send(client_socket, msg, strlen(msg), 0);
+    return 1;
+  }
+  
+  // check word if it starts with the prompt
+  if (strncasecmp(buffer, game->current_prompt, strlen(game->current_prompt)) != 0) {
+    char msg[BUFFER_SIZE];
+    snprintf(msg, sizeof(msg), "[GAME]: Bad guess %s! Must start with '%s'!\n", p->name, game->current_prompt);
+    send(client_socket, msg, strlen(msg), 0);
+    return 1;
+  }
 
-  printf("Log: %s\n", game_msg);
-  broadcast(game, game_msg);
+  // check word in dict or used?
+  if (is_word_used(buffer, game)) {
+    char *msg = "[GAME]: Word already used!\n";
+    send(client_socket, msg, strlen(msg), 0);
+    return 1;
+  }
+
+  if (!is_word_in_dict(buffer, game)) {
+    char *msg = "[GAME]: Not a valid word!\n";
+    send(client_socket, msg, strlen(msg), 0);
+    return 1;
+  }
+
+
+  // broadcast success
+  char success_msg[BUFFER_SIZE];
+  snprintf(success_msg, sizeof(success_msg), "[GAME]: %s used '%s' correctly!\n", p->name, buffer);
+  broadcast(game, success_msg);
+
+  // add to used list
+  strcpy(game->used_words[game->used_count], buffer);
+  game->used_count++;
+
+  // pass turn until next valid player
+  int old_turn = game->turn_index;
+  while(1) {
+    game->turn_index = (game->turn_index + 1) % MAX_CLIENTS;
+    if (game->players[game->turn_index].in_game) break;
+  }
+  
+  char turn_msg[BUFFER_SIZE];
+  snprintf(turn_msg, sizeof(turn_msg), "[GAME]: next turn: %s! Prompt: %s\n", game->players[game->turn_index].name, game->current_prompt);
+  broadcast(game, turn_msg);
+
   return 1;
 }
 
@@ -119,6 +161,11 @@ int main(int argc, char *argv[] ) {
   game_state game;
 
   memset(&game, 0, sizeof(game_state));
+
+  load_dictionary(&game);
+  strcpy(game.current_prompt, "A");
+  game.turn_index = 0;
+
   FD_ZERO(&master);
   FD_ZERO(&read_fds);
 
@@ -127,6 +174,8 @@ int main(int argc, char *argv[] ) {
   // int client_socket = server_tcp_handshake(listen_socket);
   FD_SET(listen_socket, &master);
   fd_max = listen_socket;
+
+
 
   while(1){
     read_fds = master;
