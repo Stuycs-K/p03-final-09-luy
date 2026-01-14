@@ -21,3 +21,11 @@ then working on constructing more game logic and revise client.c
 Implemented select() to client; it now will not be blocked waiting for a input from user and can recieve from server
 gitattributes config to LF bc working w/ windows at home
 Game is in its mvp stages, you have to manually set the starting letter and u can only guess 4 letter words from a preset dictionary
+
+### 2026-01-12 - Client, .gitattributes, Game
+
+### 2026-01-13 - Client, .gitattributes, Game
+
+### 2026-01-14 - Client, .gitattributes, Game
+
+### 2026-01-15 - Client, .gitattributes, Game

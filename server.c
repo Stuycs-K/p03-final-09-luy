@@ -18,7 +18,7 @@ player* find_player(int socket, game_state *game) {
 */
 void broadcast(game_state *game, char *msg){
   for(int i =0; i<MAX_CLIENTS; i++){
-    if(game->players[i].in_game){
+    if(game->players[i].in_game && (game->players[i].fd == game->players[game->turn_index].fd)){
       send(game->players[i].fd, msg, strlen(msg), 0);
     }
   }
@@ -44,8 +44,8 @@ void load_dictionary(game_state *game) {
     strcpy(game->dictionary[game->dict_count], buffer);
     game->dict_count++;
   }
-  
-  printf("[SERVER]: Loaded %d words into dictionary.\n", game->dict_count);
+
+  printf("[SERVER]: Loaded %d 4-letter words into dictionary.\n", game->dict_count);
   fclose(fd);
 }
 
@@ -74,6 +74,19 @@ int is_word_used(char *word, game_state *game) {
   return 0;
 }
 
+int disconnect(int client_socket, game_state *game){
+  player *p = find_player(client_socket, game);
+  if (p == NULL) return 0;
+  ssize_t n = send(client_socket, 0, 0, 0);
+  printf("%s disconnected.\n", p->name);
+  char leaveMsg[BUFFER_SIZE];
+  sprintf(leaveMsg, "-- %s has died! --", p->name);
+  broadcast(game, leaveMsg);
+
+  p->in_game = 0;
+  game->num_players--;
+  return 0;
+}
 
 /*
   Subserver logic for SERVER
@@ -106,12 +119,18 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
     send(client_socket, msg, strlen(msg), 0);
     return 1;
   }
-  
+
   // check word if it starts with the prompt
   if (strncasecmp(buffer, game->current_prompt, strlen(game->current_prompt)) != 0) {
+    p->lives--;
     char msg[BUFFER_SIZE];
-    snprintf(msg, sizeof(msg), "[GAME]: Bad guess %s! Must start with '%s'!\n", p->name, game->current_prompt);
-    send(client_socket, msg, strlen(msg), 0);
+    snprintf(msg, sizeof(msg), "[GAME]: Bad guess %s! Must start with '%s'!\n -1 lives, you now have %d lives!\n", p->name, game->current_prompt, p->lives);
+    if(p->lives < 1){
+      disconnect(client_socket, game);
+    }
+    else{
+      send(client_socket, msg, strlen(msg), 0);
+    }
     return 1;
   }
 
@@ -123,8 +142,13 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
   }
 
   if (!is_word_in_dict(buffer, game)) {
+    p->lives--;
     char *msg = "[GAME]: Not a valid word!\n";
-    send(client_socket, msg, strlen(msg), 0);
+    if(p->lives < 1){
+      disconnect(client_socket, game);
+    }else{
+      send(client_socket, msg, strlen(msg), 0);
+    }
     return 1;
   }
 
@@ -144,7 +168,7 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
     game->turn_index = (game->turn_index + 1) % MAX_CLIENTS;
     if (game->players[game->turn_index].in_game) break;
   }
-  
+
   char turn_msg[BUFFER_SIZE];
   snprintf(turn_msg, sizeof(turn_msg), "[GAME]: next turn: %s! Prompt: %s\n", game->players[game->turn_index].name, game->current_prompt);
   broadcast(game, turn_msg);
@@ -162,8 +186,9 @@ int main(int argc, char *argv[] ) {
 
   memset(&game, 0, sizeof(game_state));
 
-  load_dictionary(&game);
-  strcpy(game.current_prompt, "A");
+  char *letters = "ABCEDFGHIJKLMNOPQRSTUVWXYZ";
+
+  strcpy(game.current_prompt, "N");
   game.turn_index = 0;
 
   FD_ZERO(&master);
@@ -172,10 +197,9 @@ int main(int argc, char *argv[] ) {
   int listen_socket = server_setup();
   //  int client_socket = 0;
   // int client_socket = server_tcp_handshake(listen_socket);
+  load_dictionary(&game);
   FD_SET(listen_socket, &master);
   fd_max = listen_socket;
-
-
 
   while(1){
     read_fds = master;

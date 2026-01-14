@@ -7,6 +7,12 @@
 * returns the socket descriptor
 */
 int server_setup() {
+  printf("Hi, welcome to MEGASYMBOLDETHWORDS.\n\n");
+  usleep(300);
+  printf("\tTo initalize a game please make sure you run more client[s]!\n\n");
+  usleep(90000);
+  printf("\tAttempting to run server setup now\n\n");
+
   int stat;
   struct addrinfo hints, *results; // use stack-allocated hints
   memset(&hints, 0, sizeof(hints));
@@ -21,7 +27,7 @@ int server_setup() {
 
   //create the socket
   int listen_fd = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
-  err(listen_fd, "[SERVER SETUP]: socket error");
+  err(listen_fd, "[SERVER SETUP]: socket error! This is likely because getaddrinfo is off somewhere.");
 
   // restart target port 7142 just in case
   int yes = 1;
@@ -34,14 +40,14 @@ int server_setup() {
   //bound to port 7142 btw
   int binder = bind(listen_fd, results->ai_addr, results->ai_addrlen);
   if (binder == -1) {
-    err(binder, "[SERVER SETUP]: bind error");
+    err(binder, "[SERVER SETUP]: bind error! Is there already an existing server?");
     exit(1);
   }
-  printf("[SERVER SETUP]: bind complete\n");
+  printf("[SERVER SETUP]: Bind complete\n");
 
   //now listening
   listen(listen_fd, 2);
-  printf("[SERVER SETUP]: server will be listening for connections on PORT: %s\n", PORT);
+  printf("[SERVER SETUP]: Server will be listening for connections on PORT: %s\n", PORT);
 
 
   freeaddrinfo(results);

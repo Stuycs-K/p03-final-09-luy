@@ -26,7 +26,7 @@ typedef struct {
     int fd;// The socket  (ID)
     int lives; // 3 lives
     int in_game; // Is this slot currently taken?
-    
+  
     char name[20];
 } player;
 
