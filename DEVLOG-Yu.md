@@ -26,6 +26,6 @@ Game is in its mvp stages, you have to manually set the starting letter and u ca
 
 ### 2026-01-13 - Client, .gitattributes, Game
 
-### 2026-01-14 - Client, .gitattributes, Game
-
+### 2026-01-14 - exclusive server messages
+returns excluisive msgs to clients that are in the turn
 ### 2026-01-15 - Client, .gitattributes, Game
