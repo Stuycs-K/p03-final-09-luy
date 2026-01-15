@@ -92,7 +92,7 @@ void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_st
 
       char welcome[BUFFER_SIZE];
       snprintf(welcome, sizeof(welcome),
-      "Welcome to MEGASYMBOLDETHWORDS, %s!\n\nCurrent Prompt: A [4] Letter word starting with:  '%s' \nCurrent Turn: %s\n",
+      "Welcome to MEGASYMBOLDETHWORDS!\n\n\tYou are %s!\n It is VERY important to remember this!\n\nCurrent Prompt: A [4] Letter word starting with:  '%s' \nCurrent Turn: %s\n",
       game->players[i].name,
       game->current_prompt,
       game->players[game->turn_index].name);

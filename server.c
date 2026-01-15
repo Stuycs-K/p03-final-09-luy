@@ -6,7 +6,7 @@ void send_msg(int fd, char *str) {
 }
 
 void broadcast(game_state *game, char *msg){
-  printf("[BROADCAST]: %s"system("clear"), msg);
+  printf("[BROADCAST]: %s", msg);
   for(int i = 0; i < MAX_CLIENTS; i++){
     if(game->players[i].in_game){
       send_msg(game->players[i].fd, msg);
