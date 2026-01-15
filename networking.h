@@ -19,7 +19,7 @@
 #define BUFFER_SIZE 8192
 #define MAX_CLIENTS 10
 #define MAX_WORD_LEN 50
-#define DICT_SIZE 3500
+#define DICT_SIZE 150000 
 #define MAX_USED_WORDS 500
 
 typedef struct {
@@ -34,7 +34,7 @@ typedef struct {
     player players[MAX_CLIENTS];
     int num_players;
     int turn_index; // just set order
-    char current_prompt[5]; // current starting letters
+    char current_prompt[2]; // current starting letters
     int dict_count;
     char **dictionary; // stores words.txt
     char used_words[MAX_USED_WORDS][MAX_WORD_LEN];

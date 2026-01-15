@@ -123,12 +123,10 @@ int client_tcp_handshake(char * server_address) {
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
-  hints.ai_protocol = 0;
 
   int stat;
-  // obtains client information
   if ((stat = getaddrinfo(server_address, PORT, &hints, &results)) != 0) {
-    fprintf(stderr, "client getaddrinfo failed: %s\n", gai_strerror(stat));
+    fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(stat));
     exit(1);
   }
 
@@ -141,12 +139,11 @@ int client_tcp_handshake(char * server_address) {
       server_fd = -1;
       continue;
     }
-    break; // connected
+    break; 
   }
 
   if (server_fd == -1) {
-    fprintf(stderr, "[CLIENT]: failed to connect to %s\n. Is server present?\n", server_address);
-    freeaddrinfo(results);
+    printf("Connection failed.\n");
     exit(1);
   }
 
