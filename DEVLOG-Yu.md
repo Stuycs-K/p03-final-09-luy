@@ -28,4 +28,6 @@ Game is in its mvp stages, you have to manually set the starting letter and u ca
 
 ### 2026-01-14 - exclusive server messages
 returns excluisive msgs to clients that are in the turn
-### 2026-01-15 - Client, .gitattributes, Game
+### 2026-01-15 - random Prompt
+Letter to start with now are random instead of just the same one as start with when initally running main
+more cleanup including broadcast for only server and only client
