@@ -19,14 +19,14 @@
 #define BUFFER_SIZE 8192
 #define MAX_CLIENTS 10
 #define MAX_WORD_LEN 50
-#define DICT_SIZE 150000 
+#define DICT_SIZE 150000
 #define MAX_USED_WORDS 500
 
 typedef struct {
     int fd;// The socket  (ID)
     int lives; // 3 lives
     int in_game; // Is this slot currently taken?
-  
+
     char name[20];
 } player;
 
