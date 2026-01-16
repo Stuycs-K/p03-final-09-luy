@@ -2,10 +2,25 @@
 #include "networking.h"
 #include "time.h"
 
+/*
+ * send raw string message to a specific client
+ * @param fd  The file descriptor (socket ID) of the target client.
+ * @param str The null-terminated string to send.
+ */
 void send_msg(int fd, char *str) {
-    send(fd, str, strlen(str), 0);
+  send(fd, str, strlen(str), 0);
 }
 
+/*
+ * broadcasts a message to all currently connected and active players.
+ *
+ * This function iterates through the entire player array. If a player slot
+ * is marked as `in_game`, the message is sent to their fd
+ * It also logs the broadcast message to the server's standard output
+ * 
+ * @param game The pointer to the global game state struct.
+ * @param msg  The string message to broadcast.
+ */
 void broadcast(game_state *game, char *msg){
   printf("[BROADCAST]: %s", msg);
   for(int i = 0; i < MAX_CLIENTS; i++){
@@ -14,7 +29,14 @@ void broadcast(game_state *game, char *msg){
     }
   }
 }
-
+/*
+ * locates player object based on their socket file descriptor.
+ * finds the slot associated with the given socket id
+ *
+ * @param socket The file descriptor to search for.
+ * @param game The pointer to the global game state struct.
+ * @return A pointer to the `player` struct if found; NULL otherwise.
+ */
 player* find_player(int socket, game_state *game) {
   for (int i = 0; i < MAX_CLIENTS; i++) {
     if (game->players[i].in_game && game->players[i].fd == socket) {
@@ -24,6 +46,12 @@ player* find_player(int socket, game_state *game) {
   return NULL;
 }
 
+/*
+ * Loads the game dictionary from "words.txt" 
+ * ALSO, Exits the program (exit 1) if words.txt cannot be opened.
+ *
+ * @param game The pointer to the global game state struct.
+ */
 void load_dictionary(game_state *game) {
   FILE *fd = fopen("words.txt", "r");
   if (!fd) {
@@ -48,6 +76,15 @@ void load_dictionary(game_state *game) {
   fclose(fd);
 }
 
+
+/*
+ * Checks if a given word exists in the loaded dictionary
+ *
+ *
+ * @param word The word string to check.
+ * @param game The pointer to the global game state struct.
+ * @return 1 if the word is found in the dictionary, 0 otherwise.
+ */
 int is_word_in_dict(char *word, game_state *game) {
   for (int i = 0; i < game->dict_count; i++) {
     if (strcasecmp(word, game->dictionary[i]) == 0) return 1;
@@ -55,6 +92,13 @@ int is_word_in_dict(char *word, game_state *game) {
   return 0;
 }
 
+/*
+ * checks if a word has already been played in the current session
+ *
+ * @param word The word string to check.
+ * @param game The pointer to the global game state struct.
+ * @return  1 if the word has already been used, 0 otherwise.
+ */
 int is_word_used(char *word, game_state *game) {
   for (int i = 0; i < game->used_count; i++) {
     if (strcasecmp(word, game->used_words[i]) == 0) return 1;
@@ -62,6 +106,13 @@ int is_word_used(char *word, game_state *game) {
   return 0;
 }
 
+/*
+ * advances the game state to the next active player
+ * This function updates game->turn_index using modular arithmetic to find the next index in the player array
+ * It prevents infinite loops by breaking if it circles back to the original index
+ *
+ * @param game The pointer to the global game state struct.
+ */
 void advance_turn(game_state *game) {
     int start_index = game->turn_index;
     while(1) {
@@ -71,7 +122,18 @@ void advance_turn(game_state *game) {
     }
 }
 
-
+/*
+ * remove target client from game
+ *
+ * broadcasts a msg to other players
+ * marks the player slot as inactive (`in_game = 0`).
+ * also closes the socket file descriptor.
+ * also if it was the disconnected player's turn, it automatically advances
+ * the turn to the next player to prevent the game from stalling.
+ *
+ * @param client_socket The file descriptor of the disconnecting client.
+ * @param game The pointer to the global game state struct.
+ */
 void disconnect(int client_socket, game_state *game){
   player *p = find_player(client_socket, game);
   if (p == NULL) return;
@@ -93,7 +155,14 @@ void disconnect(int client_socket, game_state *game){
 }
 
 
-
+/*
+ * game logic 
+ *
+ *
+ * @param client_socket client file disc that sends a message
+ * @param game The pointer to the global game state struct
+ * @param master master set of file descriptiors
+ */
 int subserver_logic(int client_socket, game_state *game, fd_set *master){
   player *p = find_player(client_socket, game);
   if (p == NULL) return 0;
