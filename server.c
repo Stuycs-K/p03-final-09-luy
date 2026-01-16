@@ -1,5 +1,6 @@
 #define _DEFAULT_SOURCE
 #include "networking.h"
+#include "time.h"
 
 void send_msg(int fd, char *str) {
     send(fd, str, strlen(str), 0);
@@ -202,16 +203,29 @@ int main() {
         player *p = &game.players[game.turn_index];
         p->lives--;
         char timeout_msg[BUFFER_SIZE];
-        sprintf(timeout_msg, "\n[TIMER]: %s ran out of time! -1 Life (Lives: %d)\n", p->name, p->lives);
+        sprintf(timeout_msg, "\n%s ran out of time! -1 Life (Lives: %d)\n", p->name, p->lives);
         broadcast(&game, timeout_msg);
+
+        if(p->lives <= 0){
+          disconnect(p->fd, &game);
+        }else{
+          advance_turn(&game);
+          sprintf(timeout_msg, "\nNext Turn: %s | Prompt: A [4] Letter word starting with: '%s' \n", game.players[game.turn_index].name, game.current_prompt);
+          broadcast(&game, timeout_msg);
+        }
+        startTime = time(NULL);
       }
     }
+
+
     for(int i = 0; i <= fd_max; i++){
       if (FD_ISSET(i, &read_fds)) {
         if(i == listen_socket){
           server_tcp_handshake(listen_socket, &master, &fd_max, &game);
         } else {
-          subserver_logic(i, &game, &master);
+          if(subserver_logic(i, &game, &master)){
+            startTime = time(NULL);
+          };
         }
       }
     }
