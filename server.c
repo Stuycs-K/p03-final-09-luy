@@ -110,6 +110,23 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
   buffer[strcspn(buffer, "\r\n")] = 0;
   if (strlen(buffer) == 0) return 1;
 
+  if (strcasecmp(buffer, "score") == 0) {
+    char sb[BUFFER_SIZE];
+    strcpy(sb, "\n--- CURRENT SCORES ---\n");
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+      if (game->players[i].in_game) {
+        char line[100];
+        char *turn_marker = (i == game->turn_index) ? " (*)" : "";
+        sprintf(line, "[%s]: %d Lives%s\n", game->players[i].name, game->players[i].lives, turn_marker);
+        strcat(sb, line);
+      }
+    }
+    strcat(sb, "----------------------\n");
+    send_msg(client_socket, sb);
+    return 2;
+  }
+
+
   if (p != &game->players[game->turn_index]) {
     send_msg(client_socket, "[GAME]: It is not your turn! Wait.\n");
     return 1;
@@ -224,7 +241,7 @@ int main() {
           server_tcp_handshake(listen_socket, &master, &fd_max, &game);
           startTime = time(NULL);
         } else {
-          if(subserver_logic(i, &game, &master)){
+          if(subserver_logic(i, &game, &master) == 1){
             startTime = time(NULL);
           };
         }
