@@ -175,8 +175,15 @@ int main() {
   FD_SET(listen_socket, &master);
   fd_max = listen_socket;
 
+  struct timeval tv;
+  time_t turn_start_time = time(NULL);
+  int turn_limit = 9;
+
   while(1){
     read_fds = master;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    
     if(select(fd_max+1, &read_fds, NULL, NULL, NULL) == -1){
       perror("select");
       exit(1);
