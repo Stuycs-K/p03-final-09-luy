@@ -6,7 +6,7 @@ void send_msg(int fd, char *str) {
 }
 
 void broadcast(game_state *game, char *msg){
-  printf("[BROADCAST]: %s", msg); 
+  printf("[BROADCAST]: %s", msg);
   for(int i = 0; i < MAX_CLIENTS; i++){
     if(game->players[i].in_game){
       send_msg(game->players[i].fd, msg);
@@ -81,7 +81,7 @@ void disconnect(int client_socket, game_state *game){
   p->in_game = 0;
   game->num_players--;
   close(client_socket);
-  
+
   if (p == &game->players[game->turn_index]) {
     advance_turn(game);
     char turn_msg[BUFFER_SIZE];
@@ -119,12 +119,12 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
     char msg[BUFFER_SIZE];
     sprintf(msg, "[GAME]: Wrong letter! Must start with '%s'. Lives: %d\n", game->current_prompt, p->lives);
     send_msg(client_socket, msg);
-    
+
     if(p->lives < 1) {
         send_msg(client_socket, "YOU DIED.\n");
         disconnect(client_socket, game);
-        FD_CLR(client_socket, master); 
-        return 0; 
+        FD_CLR(client_socket, master);
+        return 0;
     }
     return 1;
   }
@@ -133,13 +133,20 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
     send_msg(client_socket, "[GAME]: Word already used!\n");
     return 1;
   }
-  
+
   if (!is_word_in_dict(buffer, game)) {
+    p->lives--;
     send_msg(client_socket, "[GAME]: Not in dictionary!\n");
+    if(p->lives < 1) {
+        send_msg(client_socket, "YOU DIED.\n");
+        disconnect(client_socket, game);
+        FD_CLR(client_socket, master);
+        return 0;
+    }
     return 1;
   }
 
-  char success_msg[BUFFER_SIZE];
+  char success_msg[BUFFER_SIZE * 2];
   sprintf(success_msg, "[GAME]: %s played '%s'!\n", p->name, buffer);
   broadcast(game, success_msg);
 
@@ -152,7 +159,7 @@ int subserver_logic(int client_socket, game_state *game, fd_set *master){
   advance_turn(game);
 
   char turn_msg[BUFFER_SIZE];
-  sprintf(turn_msg, "\nNext Turn: %s | Prompt: [%s]\n", game->players[game->turn_index].name, game->current_prompt);
+  sprintf(turn_msg, "\nNext Turn: %s | Prompt: A [4] Letter word starting with: '%s' \n", game->players[game->turn_index].name, game->current_prompt);
   broadcast(game, turn_msg);
 
   return 1;

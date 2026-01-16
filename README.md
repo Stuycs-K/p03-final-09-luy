@@ -14,13 +14,13 @@ A simple recreation of word bomb through networking in C. Servers acting as game
 
 *To setup the game room and 1 potential player:* <br>
 >> make setup <br>
->> make server <br>
->> make client <br>
+>> ./server <br>
+>> ./client <br>
 <br>
 
 *To join an active room (assuming server with room is present):* <br>
 >> make setup <br>
->> make client <br>
+>> ./client <br>
 <br>
 
 **INTERACTIONS:** <br>

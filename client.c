@@ -26,7 +26,7 @@ int main(int argc, char *argv[] ) {
 
       int bytes = recv(server_socket, buff, sizeof(buff) - 1, 0);
 
-      
+
       if(bytes <= 0){
         printf("You died!\n"); // should probably do like a last message to print stats or something before exit 0ing
         exit(0);
