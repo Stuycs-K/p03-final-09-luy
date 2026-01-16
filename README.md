@@ -3,6 +3,9 @@
 
 Yu Lu
 
+### Video Link:
+https://www.youtube.com/watch?v=-VzpGXkBps4
+
 ### Project Description:
 
 A simple recreation of word bomb through networking in C. Servers acting as gamemasters that track rounds, validate words, and points/health of each client as they take turns in guessing the right words. The last client alive wins.
