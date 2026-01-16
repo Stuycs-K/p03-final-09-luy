@@ -71,6 +71,7 @@ void advance_turn(game_state *game) {
     }
 }
 
+
 void disconnect(int client_socket, game_state *game){
   player *p = find_player(client_socket, game);
   if (p == NULL) return;
@@ -203,7 +204,7 @@ int main() {
 
   struct timeval tv;
   time_t startTime = time(NULL);
-  int timeLimit = 9;
+  int timeLimit = 15;
   
   while(1){
     read_fds = master;

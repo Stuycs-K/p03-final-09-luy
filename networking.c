@@ -57,6 +57,7 @@ int server_setup() {
 /*Accept a connection from a client
  *return the socket descriptor for the new socket connected to the client
  *blocks until connection is made.
+ *ALSO prints current game state for client
  */
 void server_tcp_handshake(int listen_socket, fd_set *master, int *fdmax, game_state *game){
   struct sockaddr_storage client_addr;
