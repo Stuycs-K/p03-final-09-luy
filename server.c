@@ -183,8 +183,8 @@ int main() {
   fd_max = listen_socket;
 
   struct timeval tv;
-  time_t turn_start_time = time(NULL);
-  int turn_limit = 9;
+  time_t startTime = time(NULL);
+  int timeLimit = 9;
 
   while(1){
     read_fds = master;
@@ -196,6 +196,16 @@ int main() {
       exit(1);
     }
 
+    if(game.num_players > 0){
+      time_t curr = time(NULL);
+      if(curr - startTime >= timeLimit){
+        player *p = &game.players[game.turn_index];
+        p->lives--;
+        char timeout_msg[BUFFER_SIZE];
+        sprintf(timeout_msg, "\n[TIMER]: %s ran out of time! -1 Life (Lives: %d)\n", p->name, p->lives);
+        broadcast(&game, timeout_msg);
+      }
+    }
     for(int i = 0; i <= fd_max; i++){
       if (FD_ISSET(i, &read_fds)) {
         if(i == listen_socket){
