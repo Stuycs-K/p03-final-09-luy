@@ -186,7 +186,7 @@ int main() {
   struct timeval tv;
   time_t startTime = time(NULL);
   int timeLimit = 9;
-
+  
   while(1){
     read_fds = master;
     tv.tv_sec = 1;
@@ -222,6 +222,7 @@ int main() {
       if (FD_ISSET(i, &read_fds)) {
         if(i == listen_socket){
           server_tcp_handshake(listen_socket, &master, &fd_max, &game);
+          startTime = time(NULL);
         } else {
           if(subserver_logic(i, &game, &master)){
             startTime = time(NULL);
