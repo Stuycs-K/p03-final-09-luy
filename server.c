@@ -198,6 +198,7 @@ int main() {
 
   int listen_socket = server_setup();
   FD_SET(listen_socket, &master);
+  FD_SET(STDIN_FILENO, &master);
   fd_max = listen_socket;
 
   struct timeval tv;
@@ -212,6 +213,17 @@ int main() {
     if(select(fd_max+1, &read_fds, NULL, NULL, NULL) == -1){
       perror("select");
       exit(1);
+    }
+    if (FD_ISSET(STDIN_FILENO, &read_fds)) {
+      char server_cmd[100];
+      if (fgets(server_cmd, sizeof(server_cmd), stdin)) {
+        server_cmd[strcspn(server_cmd, "\r\n")] = 0;
+        if (strcasecmp(server_cmd, "kill") == 0) {
+          printf("[SERVER]: Shutting down.\n");
+          broadcast(&game, "\n[SERVER]: SERVER SHUTDOWN INITIATED. GOODBYE!\n");
+          exit(0);
+        }
+      }
     }
 
     if(game.num_players > 0){
