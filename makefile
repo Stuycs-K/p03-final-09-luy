@@ -1,6 +1,6 @@
 .PHONY: client server clean
 setup: client server
-	
+
 client: client.o networking.o
 	gcc -o client client.o networking.o
 
